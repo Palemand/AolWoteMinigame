@@ -31,39 +31,46 @@ window.addEventListener('load', () => {
             this.height = 50;
             this.x = 150;
             this.y = 150;
-            this.speed = 3;
+            this.speed = 2;
             this.diagonalSpeed = this.speed / Math.sqrt(2);
-
+            this.image = new Image();
+            this.image.src = 'img_1.png';
         }
 
         draw(context) {
-            context.fillStyle = 'blue';
-            context.fillRect(this.x, this.y, this.width, this.height);
+            context.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+
+            context.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
 
-        updatePos() {
+        updatePos(deltaTime) {
+
             let keys = this.game.input.pressedKeys;
+            const speed = this.speed * deltaTime * 60;
+            const diagonalSpeed = this.diagonalSpeed * deltaTime * 60;
+
+
             // make better later lol
             if (keys.has('w') && keys.has('a')) {
-                this.y -= this.diagonalSpeed;
-                this.x -= this.diagonalSpeed;
+                this.y -= diagonalSpeed;
+                this.x -= diagonalSpeed;
             }
             else if (keys.has('w') && keys.has('d')) {
-                this.y -= this.diagonalSpeed;
-                this.x += this.diagonalSpeed;
+                this.y -= diagonalSpeed;
+                this.x += diagonalSpeed;
             }
             else if (keys.has('s') && keys.has('a')) {
-                this.y += this.diagonalSpeed;
-                this.x -= this.diagonalSpeed;
+                this.y += diagonalSpeed;
+                this.x -= diagonalSpeed;
             }
             else if (keys.has('s') && keys.has('d')) {
-                this.y += this.diagonalSpeed;
-                this.x += this.diagonalSpeed;
+                this.y += diagonalSpeed;
+                this.x += diagonalSpeed;
             }
-            else if (keys.has('w')) this.y -= this.speed;
-            else if (keys.has('s')) this.y += this.speed;
-            else if (keys.has('a')) this.x -= this.speed;
-            else if (keys.has('d')) this.x += this.speed;
+            else if (keys.has('w')) this.y -= speed;
+            else if (keys.has('s')) this.y += speed;
+            else if (keys.has('a')) this.x -= speed;
+            else if (keys.has('d')) this.x += speed;
 
         }
     }
@@ -75,11 +82,13 @@ window.addEventListener('load', () => {
             this.height = 100;
             this.x = canvas.width / 2 - this.width / 2;
             this.y = canvas.height / 2 - this.height / 2;
+            this.image = new Image();
+            this.image.src = 'img.png';
         }
 
         draw(context) {
-            context.fillStyle = 'red';
-            context.fillRect(this.x, this.y, this.width, this.height);
+            context.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
+            context.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
     }
 
@@ -98,13 +107,16 @@ window.addEventListener('load', () => {
     }
 
     let game = new Game(canvas.height, canvas.width)
-    function animate() {
+    let lastTime = 0;
+    function animate(timeStamp) {
+        let deltaTime = (timeStamp - lastTime) / 1000;
+        lastTime = timeStamp;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.player.updatePos();
+        game.player.updatePos(deltaTime);
         game.render(ctx);
         requestAnimationFrame(animate);
     }
-    animate();
+    animate(0);
 
     //gotta add player movement
 
