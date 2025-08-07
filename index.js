@@ -29,8 +29,8 @@ window.addEventListener('load', () => {
             this.game = game;
             this.width = 50;
             this.height = 50;
-            this.x = 150;
-            this.y = 150;
+            this.x = 400;
+            this.y = 500;
             this.speed = 2;
             this.diagonalSpeed = this.speed / Math.sqrt(2);
             this.image = new Image();
@@ -84,11 +84,18 @@ window.addEventListener('load', () => {
             this.y = canvas.height / 2 - this.height / 2;
             this.image = new Image();
             this.image.src = 'img.png';
+            this.attackSet = new Set(['left' , 'right', 'up', 'slam']);
+            this.lastAttack = 'none';
+            this.currentAttack = 'none';
         }
 
         draw(context) {
             context.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
             context.drawImage(this.image, this.x, this.y, this.width, this.height);
+        }
+        update(deltaTime) {
+            // Randomly select a move from the moveset every 2 seconds
+
         }
     }
 
@@ -113,6 +120,7 @@ window.addEventListener('load', () => {
         lastTime = timeStamp;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         game.player.updatePos(deltaTime);
+        game.boss.update(deltaTime);
         game.render(ctx);
         requestAnimationFrame(animate);
     }
