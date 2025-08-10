@@ -93,8 +93,9 @@ window.addEventListener('load', () => {
             context.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
             context.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
+
         update(deltaTime) {
-            // Randomly select a move from the moveset every 2 seconds
+            // Randomly select a move from the moveset every 4 seconds
 
         }
     }
@@ -107,6 +108,12 @@ window.addEventListener('load', () => {
             this.player = new Player(this);
             this.boss = new Boss(this);
         }
+        update(deltaTime) {
+            // Update game logic here
+            this.player.updatePos(deltaTime);
+            this.boss.update(deltaTime);
+        }
+
         render(context) {
             this.boss.draw(context);
             this.player.draw(context);
@@ -119,14 +126,13 @@ window.addEventListener('load', () => {
         let deltaTime = (timeStamp - lastTime) / 1000;
         lastTime = timeStamp;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.player.updatePos(deltaTime);
-        game.boss.update(deltaTime);
+        game.update(deltaTime);
         game.render(ctx);
         requestAnimationFrame(animate);
     }
     animate(0);
 
-    //gotta add player movement
+
 
 
 
