@@ -5,6 +5,15 @@ window.addEventListener('load', () => {
     canvas.width = 1280;
     canvas.height = 720;
 
+    function drawCircularImage(context, image, x, y, radius) {
+        context.save();
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.clip();
+        context.drawImage(image, x - radius, y - radius, radius * 2, radius * 2);
+        context.restore();
+    }
+
     class InputHandler { //handles input for the game
         constructor(game) {
             this.game = game;
@@ -12,15 +21,15 @@ window.addEventListener('load', () => {
 
             window.addEventListener('keydown', (event) => {
                 this.pressedKeys.add(event.key);
-                console.log('Pressed Key', event.key);
+                //console.log('Pressed Key', event.key);
             });
 
             window.addEventListener('keyup', (event) => {
                 this.pressedKeys.delete(event.key);
-                console.log(`Key released: ${event.key}`);
+                //console.log(`Key released: ${event.key}`);
             });
 
-            console.log("handler init");
+            console.log("Input handler init");
         }
     }
 
@@ -38,12 +47,10 @@ window.addEventListener('load', () => {
         }
 
         draw(context) {
-            context.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
-
-            context.drawImage(this.image, this.x, this.y, this.width, this.height);
+            drawCircularImage(context, this.image, this.x + this.width / 2, this.y + this.height / 2, this.width / 2);
         }
 
-        updatePos(deltaTime) {
+        update(deltaTime) {
 
             let keys = this.game.input.pressedKeys;
             const speed = this.speed * deltaTime * 60;
@@ -86,17 +93,27 @@ window.addEventListener('load', () => {
             this.image.src = 'img.png';
             this.attackSet = new Set(['left' , 'right', 'up', 'slam']);
             this.lastAttack = 'none';
+            this.lastAttackTime = 5; //i sekunder og vi starter med et predelay på 5 sekunder
             this.currentAttack = 'none';
         }
 
         draw(context) {
-            context.fillRect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
-            context.drawImage(this.image, this.x, this.y, this.width, this.height);
+            drawCircularImage(context, this.image, this.x + this.width / 2, this.y + this.height / 2, this.width / 2);
         }
 
         update(deltaTime) {
             // Randomly select a move from the moveset every 4 seconds
-
+            let gameTime = this.game.gameTime;
+            if (gameTime - this.lastAttackTime >= 4) {
+                let moves = Array.from(this.attackSet);
+                // Ensure the new attack is different from the last one
+                if (this.currentAttack !== 'none' && moves.includes(this.currentAttack)) {
+                    moves = moves.filter(move => move !== this.currentAttack);
+                }
+                this.currentAttack = moves[Math.floor(Math.random() * moves.length)];
+                this.lastAttackTime = gameTime;
+                console.log(`Boss attack: ${this.currentAttack}`);
+            }
         }
     }
 
@@ -107,16 +124,26 @@ window.addEventListener('load', () => {
             this.input = new InputHandler(this);
             this.player = new Player(this);
             this.boss = new Boss(this);
+            this.gameTime = 0; //i sekunder
         }
         update(deltaTime) {
-            // Update game logic here
-            this.player.updatePos(deltaTime);
+            //update game logic here
+            this.player.update(deltaTime);
             this.boss.update(deltaTime);
+            this.gameTime += deltaTime;
+
+        }
+        drawTimer(context) {
+            context.font = '20px Arial';
+            context.fillStyle = 'black';
+            context.fillText(`Game Time: ${Math.floor(this.gameTime)}s`, 5, 20);
         }
 
         render(context) {
             this.boss.draw(context);
             this.player.draw(context);
+            this.drawTimer(context);
+
         }
     }
 
